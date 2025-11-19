@@ -40,6 +40,12 @@ jobs:
       - name: Run mlflow project
         run: |
           mlflow run MLFlowProject --env-manager=local 
+
+      # set github user
+      - name: Set git user
+        run: |
+          git config --global user.name "syahrulfahmi"
+          git config --global user.email "syahrulfahmi331@gmail.com"
  
       # Save models to GitHub Repository
       - name: Save mlruns to repo
