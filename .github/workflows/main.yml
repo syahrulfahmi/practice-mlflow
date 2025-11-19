@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
  
 env:
   CSV_URL: "practice-mlflow/train_pca.csv"
