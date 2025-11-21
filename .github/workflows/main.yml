@@ -13,6 +13,7 @@ permissions:
  
 env:
   CSV_URL: "practice-mlflow/train_pca.csv"
+  TARGET_VAR: "Credit_Score"
  
 jobs:
   build:
@@ -44,6 +45,34 @@ jobs:
         run: |
           mlflow run MLFlowProject --env-manager=local 
 
+      - name: Get latest MLflow run_id
+        run: |
+          RUN_ID=$(ls -td mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          echo "Latest run_id: $RUN_ID"
+
+      # build docker image
+      - name: Build Docker Model
+        run: |
+          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "cc"
+
+      #set auth to docker
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # tag docker image
+      - name: Tag Docker Image
+        run: |
+          docker tag cc ${{ secrets.DOCKER_HUB_USERNAME }}/practicemlflow:latest
+
+      # push docker image
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/practicemlflow:latest
+          
       # set github user
       - name: Set git user
         run: |
